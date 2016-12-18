@@ -1,0 +1,29 @@
+#
+#20161212 : authorized_me
+###########################
+# gives you ssh access within a window of time
+#
+# To use:
+# post your authorized_keys to github gist and use the raw output
+# https://gist.githubusercontent.com/alex2006hw/5c5ee716b3b5dc35c6ff062a41f040de/raw/e76a15bc71f337e8cbae6beeb15a8fe7ddefd908/id_rsa.pub
+# shorten your key URL http://bit.ly/2hrCFsg
+# update WINDOWTIME with the amount of time for the key to remain valid default = 15m
+#
+# usuage : authorized_me http://bit.ly/2hrCFsg
+#
+KEY=http://bit.ly/2hrCFsg
+WINDOWTIME=15m
+#
+[ -f ~/.ssh/authorized_me_locked ] && echo "LOCK ERROR : please remove ~/.ssh/authorized_me_locked" && exit 1
+DATE=$(date +%Y%m.%d.%s)
+[ ! -z $1 ] && KEY=$1
+[ ! -d ~/.ssh ] && mkdir -p ~/.ssh;chmod 700 ~/.ssh
+[ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys-${DATE}
+[ -f ~/.ssh/authorized_keys ] && cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys-${DATE}
+echo "" >> ~/.ssh/authorized_keys
+curl -L ${KEY} >> ~/.ssh/authorized_keys
+touch ~/.ssh/authorized_me_locked
+# sleep for 15minutes then revert the changes
+sleep ${WINDOWTIME}
+[ -f ~/.ssh/authorized_keys-${DATE} ] && cp ~/.ssh/authorized_keys-${DATE} ~/.ssh/authorized_keys
+[ -f ~/.ssh/authorized_me_locked ] && rm ~/.ssh/authorized_me_locked

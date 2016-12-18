@@ -1,0 +1,14 @@
+ETH1=`ifconfig eth1 | grep addr | awk '{print $2}' | grep -v Link | awk -F: '{print $2}'`
+#
+# Start up the consul
+docker run -d -p 8500:8500 --name=consul progrium/consul -server -bootstrap -advertise=${ETH1}
+# Start up the primary manager
+docker run -d -p 4000:4000 swarm manage -H :4000 --name=manager --replication --advertise ${ETH1}:4000 consul://${ETH1}:8500
+# start up the swarm
+docker swarm init --advertise-addr ${ETH1}
+# join the swarm
+docker swarm join-token worker | grep -v ^To | sh
+docker network create --driver overlay appstack01-network
+docker service create --name echo --replicas 1 --publish 80:8080 --network appstack01-network jmalloc/echo-server
+
+exit 0

@@ -1,0 +1,5 @@
+[user]
+	email = sysadmin@pointlook.com
+	name = System Admin
+[push]
+	default = simple

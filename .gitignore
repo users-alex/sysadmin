@@ -1,0 +1,9 @@
+.bash_history
+.bash_logout
+.cache
+.config
+.docker*
+.sudo*
+.viminfo
+work
+apps

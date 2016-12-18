@@ -1,0 +1,18 @@
+IMAGES=`docker ps -a | grep -v CONTAINER | awk '{ print $1 }'`
+for image in $IMAGES; do
+  echo "stopping and deleting container $image"
+  ( docker stop $image && docker rm $image ) &
+done
+
+
+IMAGES=`docker images | grep '<none>' | awk '{ print $3 }'`
+for image in $IMAGES; do
+  echo "deleting image $image"
+  ( docker rmi $image ) &
+done
+
+docker volume list | grep -v VOLUME | awk '{ print $2 }' | xargs docker volume rm 
+docker network list | grep -v NETWORK | awk '{ print $1 }' | xargs docker network rm 
+docker swarm leave --force
+
+echo "cleaning completed."
